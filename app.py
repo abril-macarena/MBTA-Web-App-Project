@@ -10,31 +10,23 @@ app = Flask(__name__)
 #     return "Hello World!"
 
 
-# Home page with a form to enter a place name
+# Home page with a form allowing user to enter location
 @app.route("/", methods=["GET", "POST"])
 def index():
     if request.method == "POST":
-        # Get the place name from the form
         place_name = request.form.get("place_name")
-        
-        # If place_name is provided, redirect to nearest MBTA route with the place_name parameter
         if place_name:
             return redirect(url_for("nearest_mbta", place_name=place_name))
     
-    # Render the index.html template for GET requests or if place_name is not provided
     return render_template("index.html")
 
-# Route to show the nearest MBTA station based on place name
+# Page to show nearest MBTA station details
 @app.route("/nearest_mbta")
 def nearest_mbta():
-    # Get the place name from the URL parameters
     place_name = request.args.get("place_name")
-    
-    # If place_name is missing, show an error message
     if not place_name:
         return redirect(url_for("error"))
 
-    # Try to get the nearest station and accessibility info
     try:
         station_name, wheelchair_accessible = mbta_helper.find_stop_near(place_name)
         return render_template(
@@ -44,10 +36,9 @@ def nearest_mbta():
             wheelchair_accessible=wheelchair_accessible,
         )
     except:
-        # Redirect to an error page if an exception occurs
-        return redirect(url_for("error"))
+        return redirect(url_for("error")) #redirects to error page if needed
 
-# Error page route
+# Error page 
 @app.route("/error")
 def error():
     return render_template("error.html")
